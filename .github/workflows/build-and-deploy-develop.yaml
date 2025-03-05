@@ -1,0 +1,61 @@
+name: Build And Deploy To Lambda
+
+on:
+  push:
+    branches:
+      - hoge
+    #   - develop
+    paths:
+      - "lambda_handler/**"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Select branch to deploy"
+        required: true
+        default: "develop"
+        type: choice
+        options:
+          - develop
+
+env:
+  # lambda
+  LAMBDA_FUNCTION_NAME: wr-${{ vars.ENV }}-wanrun-ssr
+
+jobs:
+  go-build:
+    name: Lambda-build-and-deploy
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Zip
+        run: |
+          sudo apt update
+          sudo apt install -y awscli zip
+
+      - name: Create ZIP file
+        run: |
+          zip -r lambda.zip lambda_handler/
+          ls -al
+
+      - name: setup-python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Upload new Lambda version
+        run: |
+          # ZIP ファイルをアップロード
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://lambda.zip
+
+          # 新しいバージョンを発行
+          # VERSION=$(aws lambda publish-version --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --query Version --output text)
+          
+          # echo "New Lambda version: $VERSION"
