@@ -21,6 +21,9 @@ env:
   # lambda
   LAMBDA_FUNCTION_NAME: wr-${{ vars.ENV }}-wanrun-ssr
 
+  # s3
+  S3_BUCKET_NAME: wr-${{ vars.ENV }}-webapp
+
 jobs:
   go-build:
     name: Lambda-build-and-deploy
@@ -33,6 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - name: Download server files from S3
+        run: |
+          aws s3 cp s3://${S3_BUCKET_NAME}/server/ server/ --recursive
+          aws s3 cp s3://${S3_BUCKET_NAME}/standalone/ standalone/ --recursive
+          ls -al
+
       - name: Install Zip
         run: |
           sudo apt update
@@ -40,8 +49,7 @@ jobs:
 
       - name: Create ZIP file
         run: |
-          zip -r lambda.zip lambda_handler/
-          ls -al
+          zip -r lambda.zip lambda_handler/index.js server/ standalone/
 
       - name: setup-python
         uses: actions/setup-python@v3
