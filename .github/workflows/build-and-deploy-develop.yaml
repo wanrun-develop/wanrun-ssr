@@ -56,10 +56,20 @@ jobs:
           sudo apt update
           sudo apt install -y zip
 
+      - name: Setup Node
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 20.14.0 # https://github.com/actions/node-versions/releases
+          cache: yarn
+  
+      # Lambda内のnext実行用
+      - name: Dependency Install
+        run: yarn install --frozen-lockfile
+
       - name: Create ZIP file
         run: |
           mv lambda_handler/index.js .
-          zip -r lambda.zip index.js server/ standalone/
+          zip -r lambda.zip index.js server/ standalone/ node_modules/
 
       - name: setup-python
         uses: actions/setup-python@v3
