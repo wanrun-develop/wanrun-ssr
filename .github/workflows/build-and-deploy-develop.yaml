@@ -66,6 +66,13 @@ jobs:
         with:
           python-version: '3.x'
 
+      # バージニア北部リージョン (us-east-1) の認証情報を設定
+      - name: Configure AWS credentials for Virginia
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}          
+          aws-region: us-east-1
+
       - name: Upload new Lambda version
         run: |
           # ZIP ファイルをアップロード
