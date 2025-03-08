@@ -79,7 +79,6 @@ jobs:
           aws lambda update-function-code \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
             --zip-file fileb://lambda.zip
-            --region us-east-1
 
           # 新しいバージョンを発行
           # VERSION=$(aws lambda publish-version --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --query Version --output text)
