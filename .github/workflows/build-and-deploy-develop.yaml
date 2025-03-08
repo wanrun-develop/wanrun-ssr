@@ -25,7 +25,7 @@ env:
   WEBAPP_S3_BUCKET_NAME: wr-${{ vars.ENV }}-webapp
 
   # webapp artifact s3
-  WEBAPP_ARTIFACT_S3_BUCKET_NAME: wr-global-webapp-artifact
+  WEBAPP_ARTIFACT_S3_BUCKET_NAME: wr-global-webapp-artifact-${{ vars.DEVELOP_AWS_ACCOUNT }}
   
   # aws
   AWS_REGION: ap-northeast-1
@@ -74,16 +74,16 @@ jobs:
           mv lambda_handler/index.js .
           zip -r lambda.zip index.js server/ standalone/ node_modules/
 
-      # アーティファクトをS3にアップロード(サイズが大きいため)
-      - name: Upload Lambda ZIP to S3
-        run: aws s3 cp lambda.zip s3://${{ env.WEBAPP_ARTIFACT_S3_BUCKET_NAME }}/${{ vars.ENV }}/lambda.zip
-
       # バージニア北部リージョン (us-east-1) の認証情報を設定
       - name: Configure AWS credentials for Virginia
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}          
           aws-region: us-east-1
+
+      # アーティファクトをS3にアップロード(サイズが大きいため)
+      - name: Upload Lambda ZIP to S3
+        run: aws s3 cp lambda.zip s3://${{ env.WEBAPP_ARTIFACT_S3_BUCKET_NAME }}/${{ vars.ENV }}/lambda.zip
 
       # s3経由でLambdaの更新
       - name: Update Lambda function
