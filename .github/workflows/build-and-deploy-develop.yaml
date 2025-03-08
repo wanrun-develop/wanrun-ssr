@@ -49,6 +49,13 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Download and check size of server files from S3
+        run: |
+          echo "=== Server directory sizes ==="
+          aws s3 ls s3://${{ env.WEBAPP_S3_BUCKET_NAME }}/server/ --recursive --human-readable --summarize
+          echo "=== Standalone directory sizes ==="
+          aws s3 ls s3://${{ env.WEBAPP_S3_BUCKET_NAME }}/standalone/ --recursive --human-readable --summarize
+
       - name: Download server files from S3
         run: |
           aws s3 cp s3://${{ env.WEBAPP_S3_BUCKET_NAME }}/server/ server/ --recursive
