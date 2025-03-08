@@ -23,6 +23,10 @@ env:
 
   # s3
   S3_BUCKET_NAME: wr-${{ vars.ENV }}-webapp
+  
+  # aws
+  AWS_REGION: ap-northeast-1
+  AWS_ROLE_ARN: arn:aws:iam::${{ vars.DEVELOP_AWS_ACCOUNT }}:role/github-actions
 
 jobs:
   go-build:
@@ -36,10 +40,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Download server files from S3
         run: |
-          aws s3 cp s3://${S3_BUCKET_NAME}/server/ server/ --recursive
-          aws s3 cp s3://${S3_BUCKET_NAME}/standalone/ standalone/ --recursive
+          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/server/ server/ --recursive
+          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/standalone/ standalone/ --recursive
           ls -al
 
       - name: Install Zip
