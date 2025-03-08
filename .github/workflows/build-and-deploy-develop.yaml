@@ -50,12 +50,11 @@ jobs:
         run: |
           aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/server/ server/ --recursive
           aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/standalone/ standalone/ --recursive
-          ls -al
 
       - name: Install Zip
         run: |
           sudo apt update
-          sudo apt install -y awscli zip
+          sudo apt install -y zip
 
       - name: Create ZIP file
         run: |
