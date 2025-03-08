@@ -12,10 +12,10 @@ on:
       branch:
         description: "Select branch to deploy"
         required: true
-        default: "develop"
+        default: "main"
         type: choice
         options:
-          - develop
+          - main
 
 env:
   # lambda
