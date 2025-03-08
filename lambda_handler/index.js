@@ -2,9 +2,8 @@ const next = require("next");
 const { parse } = require("url");
 
 const app = next({ dev: false });
-const handle = app.getRequestHandler();
 
-exports.handler = async function(event, context) {
+export const handler = async function (event, context) {
   await app.prepare();
 
   const { request } = event.Records[0].cf;
