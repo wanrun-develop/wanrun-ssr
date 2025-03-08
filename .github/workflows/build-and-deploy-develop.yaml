@@ -21,8 +21,11 @@ env:
   # lambda
   LAMBDA_FUNCTION_NAME: wr-${{ vars.ENV }}-wanrun-ssr
 
-  # s3
-  S3_BUCKET_NAME: wr-${{ vars.ENV }}-webapp
+  # webapp s3
+  WEBAPP_S3_BUCKET_NAME: wr-${{ vars.ENV }}-webapp
+
+  # webapp artifact s3
+  WEBAPP_ARTIFACT_S3_BUCKET_NAME: wr-global-webapp-artifact
   
   # aws
   AWS_REGION: ap-northeast-1
@@ -48,8 +51,8 @@ jobs:
 
       - name: Download server files from S3
         run: |
-          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/server/ server/ --recursive
-          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/standalone/ standalone/ --recursive
+          aws s3 cp s3://${{ env.WEBAPP_S3_BUCKET_NAME }}/server/ server/ --recursive
+          aws s3 cp s3://${{ env.WEBAPP_S3_BUCKET_NAME }}/standalone/ standalone/ --recursive
 
       - name: Install Zip
         run: |
@@ -71,10 +74,9 @@ jobs:
           mv lambda_handler/index.js .
           zip -r lambda.zip index.js server/ standalone/ node_modules/
 
-      - name: setup-python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
+      # アーティファクトをS3にアップロード(サイズが大きいため)
+      - name: Upload Lambda ZIP to S3
+        run: aws s3 cp lambda.zip s3://${{ env.WEBAPP_ARTIFACT_S3_BUCKET_NAME }}/${{ vars.ENV }}/lambda.zip
 
       # バージニア北部リージョン (us-east-1) の認証情報を設定
       - name: Configure AWS credentials for Virginia
@@ -83,12 +85,20 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}          
           aws-region: us-east-1
 
-      - name: Upload new Lambda version
+      # s3経由でLambdaの更新
+      - name: Update Lambda function
         run: |
-          # ZIP ファイルをアップロード
           aws lambda update-function-code \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --zip-file fileb://lambda.zip
+            --s3-bucket ${{ env.WEBAPP_ARTIFACT_S3_BUCKET_NAME }} \
+            --s3-key ${{ vars.ENV }}/lambda.zip
+
+      # - name: Upload new Lambda version
+      #   run: |
+      #     # ZIP ファイルをアップロード
+      #     aws lambda update-function-code \
+      #       --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+      #       --zip-file fileb://lambda.zip
 
           # 新しいバージョンを発行
           # VERSION=$(aws lambda publish-version --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --query Version --output text)
