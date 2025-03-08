@@ -69,20 +69,22 @@ jobs:
           sudo apt update
           sudo apt install -y zip
 
-      - name: Setup Node
-        uses: actions/setup-node@v4.2.0
-        with:
-          node-version: 20.14.0 # https://github.com/actions/node-versions/releases
-          cache: yarn
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4.2.0
+      #   with:
+      #     node-version: 20.14.0 # https://github.com/actions/node-versions/releases
+      #     cache: yarn
   
-      # Lambda内のnext実行用
-      - name: Dependency Install
-        run: yarn install --frozen-lockfile
+      # # Lambda内のnext実行用
+      # - name: Dependency Install
+      #   run: yarn install --frozen-lockfile
 
       - name: Create ZIP file
         run: |
           mv lambda_handler/index.js .
-          zip -r lambda.zip index.js server/ standalone/ node_modules/
+          mv standalone/node_modules/ .
+          ls -al
+          zip -r lambda.zip index.js server/ node_modules/
 
       # バージニア北部リージョン (us-east-1) の認証情報を設定
       - name: Configure AWS credentials for Virginia
