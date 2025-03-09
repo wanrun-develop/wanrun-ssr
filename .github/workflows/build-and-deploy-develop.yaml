@@ -51,7 +51,7 @@ jobs:
         run: |
           # aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/server/ server/ --recursive
           aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/standalone/ ./ --recursive
-          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/static/ .next/ --recursive
+          aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/static/ .next/static/ --recursive
 
       - name: Install Zip
         run: |
