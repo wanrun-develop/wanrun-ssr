@@ -60,9 +60,10 @@ jobs:
 
       - name: Create ZIP file
         run: |
-          mv lambda_handler/index.js .
+          # mv lambda_handler/index.js .
+          mv lambda_handler/run.sh .
           ls -al
-          zip -r lambda.zip index.js .env package.json .next/ node_modules/
+          zip -r lambda.zip run.sh .env package.json .next/ node_modules/
 
       - name: setup-python
         uses: actions/setup-python@v3
