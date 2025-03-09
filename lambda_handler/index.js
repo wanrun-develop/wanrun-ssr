@@ -5,7 +5,7 @@ import serverless from "serverless-http";
 const app = next({ dev: false });
 const handle = app.getRequestHandler();
 
-const serverlessHandler = async (event, context) => {
+exports.handler = async (event, context) => {
   console.log("event", event);
   await app.prepare();
   const handler = serverless((req, res) => {
@@ -14,5 +14,3 @@ const serverlessHandler = async (event, context) => {
   });
   return handler(event, context);
 };
-
-exports.handler = serverlessHandler;
