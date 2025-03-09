@@ -1,36 +1,18 @@
-const next = require("next");
-const { parse } = require("url");
+import next from "next";
+import serverless from "serverless-http";
 
+// const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: false });
 const handle = app.getRequestHandler();
 
-exports.handler = async function(event, context) {
+const serverlessHandler = async (event, context) => {
+  console.log("event", event);
   await app.prepare();
-
-  const { request } = event.Records[0].cf;
-  const { uri } = request;
-  const parsedUrl = parse(uri, true);
-
-  try {
-    // Next.js の SSR を実行
-    const html = await app.renderToHTML({ url: uri }, {}, parsedUrl);
-
-    return {
-      status: "200",
-      statusDescription: "OK",
-      headers: {
-        "content-type": [{ key: "Content-Type", value: "text/html" }],
-      },
-      body: html,
-    };
-  } catch (error) {
-    return {
-      status: "500",
-      statusDescription: "Internal Server Error",
-      headers: {
-        "content-type": [{ key: "Content-Type", value: "text/html" }],
-      },
-      body: `<html><body><h1>エラー</h1><p>${error.message}</p></body></html>`,
-    };
-  }
+  const handler = serverless((req, res) => {
+    console.log("req", req);
+    return handle(req, res);
+  });
+  return handler(event, context);
 };
+
+exports.handler = serverlessHandler;
