@@ -1,8 +1,6 @@
-FROM node:20
+FROM public.ecr.aws/docker/library/node:20.11.0-slim
 
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.0 /lambda-adapter /opt/extensions/lambda-adapter
-ENV PORT=3000 NODE_ENV=production
-ENV AWS_LWA_ENABLE_COMPRESSION=true
 WORKDIR /app
 COPY server.js package.json .env ./
 COPY .next/ ./.next/
