@@ -5,5 +5,6 @@ WORKDIR /app
 
 COPY .next/standalone ./
 COPY .next/static ./.next/static
+RUN mkdir -p .next/cache  # キャッシュディレクトリを明示的に作成
 
 CMD ["node", "server.js"]
